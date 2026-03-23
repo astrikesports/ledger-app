@@ -283,24 +283,24 @@ export default function DueTrackerAdvanced() {
       </div>
 
       {/* FORM */}
-      <div className="grid md:grid-cols-7 gap-2 mb-4">
-        <input type="date" name="date" value={form.date} onChange={handleChange} className={dark ? "border border-gray-600 bg-gray-800 text-white p-2 rounded-md" : "border border-gray-300 bg-white text-black p-2 rounded-md"} />
-        <input name="billNo" value={form.billNo} onChange={handleChange} placeholder="Bill" className={dark ? "border border-gray-600 bg-gray-800 text-white p-2 rounded-md" : "border border-gray-300 bg-white text-black p-2 rounded-md"} />
-        <input name="party" value={form.party} onChange={handleChange} placeholder="Party" className={dark ? "border border-gray-600 bg-gray-800 text-white p-2 rounded-md" : "border border-gray-300 bg-white text-black p-2 rounded-md"} />
+      <div className="grid grid-cols-9 gap-2 mb-4">
+        <input type="date" name="date" value={form.date} onChange={handleChange} className={dark ? "border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded-md text-sm" : "border border-gray-300 bg-white text-black px-2 py-1 rounded-md text-sm"} />
+        <input name="billNo" value={form.billNo} onChange={handleChange} placeholder="Bill" className={dark ? "border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded-md text-sm" : "border border-gray-300 bg-white text-black px-2 py-1 rounded-md text-sm"} />
+        <input name="party" value={form.party} onChange={handleChange} placeholder="Party" className={dark ? "border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded-md text-sm" : "border border-gray-300 bg-white text-black px-2 py-1 rounded-md text-sm"} />
 
-        <input name="salesperson" value={form.salesperson} onChange={handleChange} placeholder="Sales Person" className={dark ? "border border-gray-600 bg-gray-800 text-white p-2 rounded-md" : "border border-gray-300 bg-white text-black p-2 rounded-md"} />
+        <input name="salesperson" value={form.salesperson} onChange={handleChange} placeholder="Sales Person" className={dark ? "border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded-md text-sm" : "border border-gray-300 bg-white text-black px-2 py-1 rounded-md text-sm"} />
 
-        <input name="state" value={form.state} onChange={handleChange} placeholder="State" className={dark ? "border border-gray-600 bg-gray-800 text-white p-2 rounded-md" : "border border-gray-300 bg-white text-black p-2 rounded-md"} />
+        <input name="state" value={form.state} onChange={handleChange} placeholder="State" className={dark ? "border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded-md text-sm" : "border border-gray-300 bg-white text-black px-2 py-1 rounded-md text-sm"} />
 
-        <select name="type" value={form.type} onChange={handleChange} className={dark ? "border border-gray-600 bg-gray-800 text-white p-2 rounded-md" : "border border-gray-300 bg-white text-black p-2 rounded-md"}>
+        <select name="type" value={form.type} onChange={handleChange} className={dark ? "border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded-md text-sm" : "border border-gray-300 bg-white text-black px-2 py-1 rounded-md text-sm"}>
           <option value="SALE">Sale</option>
           <option value="PAYMENT">Payment</option>
         </select>
 
-        <input name="total" value={form.total} onChange={handleChange} placeholder="Sale" className={dark ? "border border-gray-600 bg-gray-800 text-white p-2 rounded-md" : "border border-gray-300 bg-white text-black p-2 rounded-md"} />
-        <input name="received" value={form.received} onChange={handleChange} placeholder="Payment" className={dark ? "border border-gray-600 bg-gray-800 text-white p-2 rounded-md" : "border border-gray-300 bg-white text-black p-2 rounded-md"} />
+        <input name="total" value={form.total} onChange={handleChange} placeholder="Sale" className={dark ? "border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded-md text-sm" : "border border-gray-300 bg-white text-black px-2 py-1 rounded-md text-sm"} />
+        <input name="received" value={form.received} onChange={handleChange} placeholder="Payment" className={dark ? "border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded-md text-sm" : "border border-gray-300 bg-white text-black px-2 py-1 rounded-md text-sm"} />
 
-        <div className="flex gap-2">
+        <div className="flex gap-1">
           <button
             onClick={addEntry}
             className={`w-full text-white active:scale-95 transition px-3 py-2 rounded-md ${editId ? "bg-yellow-500 hover:bg-yellow-600" : "bg-blue-600 hover:bg-blue-700"}`}
