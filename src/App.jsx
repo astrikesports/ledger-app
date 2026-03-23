@@ -327,10 +327,10 @@ export default function DueTrackerAdvanced() {
 
         <input name="method" value={form.method} onChange={handleChange} placeholder="Method" className={dark ? "border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded-md text-sm" : "border border-gray-300 bg-white text-black px-2 py-1 rounded-md text-sm"} />
 
-        <div className="flex gap-1">
+        <div className="col-span-9 flex gap-2 justify-center mt-2">
           <button
             onClick={addEntry}
-            className={`w-full text-white active:scale-95 transition px-3 py-2 rounded-md ${editId ? "bg-yellow-500 hover:bg-yellow-600" : "bg-blue-600 hover:bg-blue-700"}`}
+            className={`text-white active:scale-95 transition px-8 py-2 rounded-md min-w-[140px] text-center ${editId ? "bg-yellow-500 hover:bg-yellow-600" : "bg-blue-600 hover:bg-blue-700"}`}
           >
             {editId ? "Update" : "Add"}
           </button>
@@ -341,7 +341,7 @@ export default function DueTrackerAdvanced() {
                 setEditId(null);
                 setForm({ date: "", billNo: "", party: "", salesperson: "", state: "", method: "", total: "", received: "", type: "SALE" });
               }}
-              className={`w-full px-3 py-2 rounded-md text-white active:scale-95 transition ${dark ? "bg-gray-600 hover:bg-gray-700" : "bg-gray-400 hover:bg-gray-500"}`}
+              className={`px-8 py-2 rounded-md min-w-[140px] text-center text-white active:scale-95 transition ${dark ? "bg-gray-600 hover:bg-gray-700" : "bg-gray-400 hover:bg-gray-500"}`}
             >
               ✖ Cancel
             </button>
