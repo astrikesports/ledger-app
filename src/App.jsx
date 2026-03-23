@@ -75,8 +75,8 @@ export default function DueTrackerAdvanced() {
       salesperson: form.salesperson,
       state: form.state,
       type: form.type,
-      total: Number(form.total || 0),
-      received: Number(form.received || 0),
+      total: form.type === "SALE" ? Number(form.total || 0) : 0,
+      received: form.type === "PAYMENT" ? Number(form.received || 0) : 0,
     };
 
     if (editId !== null) {
