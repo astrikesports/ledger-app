@@ -482,8 +482,12 @@ export default function DueTrackerAdvanced() {
 
                 <td className={dark ? "px-4 py-3 text-white" : "px-4 py-3 text-gray-800 font-semibold"}>
                   <span className={`px-2 py-1 rounded-full text-xs font-bold ${row.type === "PAYMENT" ? (dark ? "bg-green-900/40 text-green-300" : "bg-green-100 text-green-700") : (dark ? "bg-blue-900/40 text-blue-300" : "bg-blue-100 text-blue-700")}`}>
-                    {row.type} {(row.method ? `(${row.method})` : "")}
+                    {row.type}
                   </span>
+                </td>
+
+                <td className={dark ? "px-4 py-3 text-white" : "px-4 py-3 text-gray-800 font-medium"}>
+                  {row.method || "—"}
                 </td>
 
                 <td className={dark ? "px-4 py-3 text-right text-red-300 font-semibold" : "px-4 py-3 text-right text-red-600 font-semibold"}>
