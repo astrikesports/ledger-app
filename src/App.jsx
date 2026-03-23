@@ -409,7 +409,7 @@ export default function DueTrackerAdvanced() {
             <div>
               <p className={dark ? "text-gray-300" : "text-gray-600"}>Total Sale</p>
               <p className={dark ? "font-bold text-red-300" : "font-bold text-red-600"}>
-                {format(partySale - partyPayment)}
+                {format(partySale)}
               </p>
             </div>
             <div>
@@ -556,4 +556,3 @@ export default function DueTrackerAdvanced() {
     </div>
   );
 }
-
