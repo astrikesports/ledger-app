@@ -51,6 +51,7 @@ export default function DueTrackerAdvanced() {
     party: "",
     salesperson: "",
     state: "",
+    method: "",
     total: "",
     received: "",
     type: "SALE",
@@ -74,6 +75,7 @@ export default function DueTrackerAdvanced() {
       party: form.party,
       salesperson: form.salesperson,
       state: form.state,
+      method: form.method,
       type: form.type,
       total: Number(form.total || 0),
       received: Number(form.received || 0),
@@ -86,7 +88,7 @@ export default function DueTrackerAdvanced() {
       setEntries((prev) => [...prev, newEntry]);
     }
 
-    setForm({ date: "", billNo: "", party: "", salesperson: "", state: "", total: "", received: "", type: "SALE" });
+    setForm({ date: "", billNo: "", party: "", salesperson: "", state: "", method: "", total: "", received: "", type: "SALE" });
   };
 
   const handleEdit = (row) => {
@@ -96,6 +98,7 @@ export default function DueTrackerAdvanced() {
       party: row.party,
       salesperson: row.salesperson || "",
       state: row.state || "",
+      method: row.method || "",
       total: row.total,
       received: row.received,
       type: row.type || "SALE",
@@ -322,6 +325,8 @@ export default function DueTrackerAdvanced() {
         <input name="total" value={form.total} onChange={handleChange} placeholder="Sale" className={dark ? "border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded-md text-sm" : "border border-gray-300 bg-white text-black px-2 py-1 rounded-md text-sm"} />
         <input name="received" value={form.received} onChange={handleChange} placeholder="Payment" className={dark ? "border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded-md text-sm" : "border border-gray-300 bg-white text-black px-2 py-1 rounded-md text-sm"} />
 
+        <input name="method" value={form.method} onChange={handleChange} placeholder="Method" className={dark ? "border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded-md text-sm" : "border border-gray-300 bg-white text-black px-2 py-1 rounded-md text-sm"} />
+
         <div className="flex gap-1">
           <button
             onClick={addEntry}
@@ -334,7 +339,7 @@ export default function DueTrackerAdvanced() {
             <button
               onClick={() => {
                 setEditId(null);
-                setForm({ date: "", billNo: "", party: "", salesperson: "", state: "", total: "", received: "", type: "SALE" });
+                setForm({ date: "", billNo: "", party: "", salesperson: "", state: "", method: "", total: "", received: "", type: "SALE" });
               }}
               className={`w-full px-3 py-2 rounded-md text-white active:scale-95 transition ${dark ? "bg-gray-600 hover:bg-gray-700" : "bg-gray-400 hover:bg-gray-500"}`}
             >
@@ -453,6 +458,7 @@ export default function DueTrackerAdvanced() {
               <th className={dark ? "px-4 py-3 text-white" : "px-4 py-3 text-gray-900 font-semibold"}>Sales Person</th>
               <th className={dark ? "px-4 py-3 text-white" : "px-4 py-3 text-gray-900 font-semibold"}>State</th>
               <th className={dark ? "px-4 py-3 text-white" : "px-4 py-3 text-gray-900 font-semibold"}>Type</th>
+              <th className={dark ? "px-4 py-3 text-white" : "px-4 py-3 text-gray-900 font-semibold"}>Method</th>
               <th className="px-4 py-3 text-right">Sale</th>
               <th className="px-4 py-3 text-right">Payment</th>
               <th className="px-4 py-3 text-right">Due</th>
@@ -476,7 +482,7 @@ export default function DueTrackerAdvanced() {
 
                 <td className={dark ? "px-4 py-3 text-white" : "px-4 py-3 text-gray-800 font-semibold"}>
                   <span className={`px-2 py-1 rounded-full text-xs font-bold ${row.type === "PAYMENT" ? (dark ? "bg-green-900/40 text-green-300" : "bg-green-100 text-green-700") : (dark ? "bg-blue-900/40 text-blue-300" : "bg-blue-100 text-blue-700")}`}>
-                    {row.type}
+                    {row.type} {(row.method ? `(${row.method})` : "")}
                   </span>
                 </td>
 
