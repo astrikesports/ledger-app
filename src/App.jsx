@@ -38,6 +38,8 @@ export default function DueTrackerAdvanced() {
   const [filter, setFilter] = useState("ALL");
   const [daysFilter, setDaysFilter] = useState("ALL");
   const [selectedParty, setSelectedParty] = useState("ALL");
+  const [selectedSales, setSelectedSales] = useState("ALL");
+  const [stateSearch, setStateSearch] = useState("");
   const [selectedFY, setSelectedFY] = useState("ALL");
   const [currentPage, setCurrentPage] = useState(1);
   const [editId, setEditId] = useState(null);
@@ -106,12 +108,21 @@ export default function DueTrackerAdvanced() {
   };
 
   const partyList = ["ALL", ...new Set(entries.map((e) => e.party))];
+  const salesList = ["ALL", ...new Set(entries.map((e) => e.salesperson).filter(Boolean))];
   const fyList = ["ALL", ...new Set(entries.map((e) => getFY(e.date)).filter(Boolean))];
 
   const getLedgerRows = () => {
     let filtered = entries.filter((e) =>
       e.party.toLowerCase().includes(search.toLowerCase())
     );
+
+    if (stateSearch) {
+      filtered = filtered.filter(e => (e.state || "").toLowerCase().includes(stateSearch.toLowerCase()));
+    }
+
+    if (selectedSales !== "ALL") {
+      filtered = filtered.filter(e => e.salesperson === selectedSales);
+    }
 
     if (selectedParty !== "ALL") {
       filtered = filtered.filter((e) => e.party === selectedParty);
@@ -249,6 +260,17 @@ export default function DueTrackerAdvanced() {
           <select value={selectedFY} onChange={(e)=>{setSelectedFY(e.target.value); setCurrentPage(1);}} className={dark ? "border border-gray-600 bg-gray-800 text-white px-4 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition" : "border border-gray-200 bg-white text-black px-4 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition"}>
             {fyList.map(fy=><option key={fy}>{fy}</option>)}
           </select>
+
+          <select value={selectedSales} onChange={(e)=>setSelectedSales(e.target.value)} className={dark ? "border border-gray-600 bg-gray-800 text-white px-4 py-2.5 rounded-xl" : "border border-gray-200 bg-white text-black px-4 py-2.5 rounded-xl"}>
+            {salesList.map(s=><option key={s}>{s}</option>)}
+          </select>
+
+          <input
+            placeholder="State search"
+            value={stateSearch}
+            onChange={(e)=>setStateSearch(e.target.value)}
+            className={dark ? "border border-gray-600 bg-gray-800 text-white px-4 py-2.5 rounded-xl" : "border border-gray-200 bg-white text-black px-4 py-2.5 rounded-xl"}
+          />
 
           <select value={filter} onChange={(e)=>setFilter(e.target.value)} className={dark ? "border border-gray-600 bg-gray-800 text-white px-4 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition" : "border border-gray-200 bg-white text-black px-4 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition"}>
             <option value="ALL">All Status</option>
