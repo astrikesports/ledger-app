@@ -266,11 +266,12 @@ const addEntry = async () => {
     .filter(e => e.type === "PAYMENT")
     .sort((a,b)=> new Date(b.date)-new Date(a.date))[0];
 
+  // FIX: compute days from ONLY outstanding (unpaid) sale bills
   const maxDueDays = partyBalance > 0
-    ? partyFiltered
-        .filter(e => e.type === "SALE")
-        .map(e => daysDiff(e.date))
-        .reduce((a,b)=> Math.max(a,b),0)
+    ? ledgerRows
+        .filter(r => r.party === activeParty && r.type === "SALE" && r.status !== "CLEARED")
+        .map(r => r.days)
+        .reduce((a,b)=> Math.max(a,b), 0)
     : 0;
 
   return (
