@@ -1,4 +1,5 @@
 import { useState, useEffect, useLayoutEffect } from "react";
+import { supabase } from "./supabase";
 
 const getFY = (dateStr) => {
   if (!dateStr) return "";
@@ -29,10 +30,7 @@ export default function DueTrackerAdvanced() {
     root.classList.toggle("dark", dark);
     localStorage.setItem("theme", dark ? "dark" : "light");
   }, [dark]);
-  const [entries, setEntries] = useState(() => {
-    const saved = localStorage.getItem("dueData");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [entries, setEntries] = useState([]);
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("ALL");
@@ -57,29 +55,50 @@ export default function DueTrackerAdvanced() {
     type: "SALE",
   });
 
-  useEffect(() => {
-    localStorage.setItem("dueData", JSON.stringify(entries));
-  }, [entries]);
+  
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const addEntry = () => {
-    if (!form.party) return;
+  const fetchData = async () => {
+  const { data } = await supabase
+    .from("entries")
+    .select("*")
+    .order("date", { ascending: true });
+  setEntries(data || []);
+};
 
-    const newEntry = {
-      id: editId || Date.now(),
-      date: form.date,
-      billNo: form.billNo,
-      party: form.party,
-      salesperson: form.salesperson,
-      state: form.state,
-      method: form.method,
-      type: form.type,
-      total: Number(form.total || 0),
-      received: Number(form.received || 0),
-    };
+useEffect(() => {
+  fetchData();
+}, []);
+
+const addEntry = async () => {
+  if (!form.party) return;
+
+  const payload = {
+    date: form.date,
+    billNo: form.billNo,
+    party: form.party,
+    salesperson: form.salesperson,
+    state: form.state,
+    method: form.method,
+    type: form.type,
+    total: Number(form.total || 0),
+    received: Number(form.received || 0),
+  };
+
+  if (editId !== null) {
+    await supabase.from("entries").update(payload).eq("id", editId);
+    setEditId(null);
+  } else {
+    await supabase.from("entries").insert([payload]);
+  }
+
+  fetchData();
+
+  setForm({ date: "", billNo: "", party: "", salesperson: "", state: "", method: "", total: "", received: "", type: "SALE" });
+};
 
     if (editId !== null) {
       setEntries((prev) => prev.map((e) => (e.id === editId ? newEntry : e)));
@@ -106,9 +125,10 @@ export default function DueTrackerAdvanced() {
     setEditId(row.id);
   };
 
-  const handleDelete = (id) => {
-    setEntries(entries.filter((e) => e.id !== id));
-  };
+  const handleDelete = async (id) => {
+  await supabase.from("entries").delete().eq("id", id);
+  fetchData();
+};
 
   const partyList = ["ALL", ...new Set(entries.map((e) => e.party))];
   const salesList = ["ALL", ...new Set(entries.map((e) => e.salesperson).filter(Boolean))];
@@ -248,7 +268,7 @@ export default function DueTrackerAdvanced() {
           </button>
         </div>
 
-        <div className="flex gap-2 flex-wrap">
+        <div className="grid grid-cols-2 md:flex gap-2">
           <input
             placeholder="🔍 Search Party"
             value={search}
@@ -292,7 +312,7 @@ export default function DueTrackerAdvanced() {
       </div>
 
       {/* SUMMARY */}
-      <div className="grid md:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className={dark ? "bg-red-900/30 border border-red-700 rounded-2xl p-4" : "bg-red-50 border border-red-200 rounded-2xl p-4"}>
           <p className={dark ? "text-sm text-gray-300" : "text-sm text-gray-700"}>Total Sale</p>
           <h2 className={dark ? "text-red-300 font-bold" : "text-red-600 font-bold"}>{format(entries.reduce((a,b)=>a+Number(b.total||0),0))}</h2>
@@ -308,7 +328,7 @@ export default function DueTrackerAdvanced() {
       </div>
 
       {/* FORM */}
-      <div className="grid grid-cols-9 gap-2 mb-4">
+      <div className="grid grid-cols-2 md:grid-cols-9 gap-2 mb-4">
         <input type="date" name="date" value={form.date} onChange={handleChange} className={dark ? "border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded-md text-sm" : "border border-gray-300 bg-white text-black px-2 py-1 rounded-md text-sm"} />
         <input name="billNo" value={form.billNo} onChange={handleChange} placeholder="Bill" className={dark ? "border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded-md text-sm" : "border border-gray-300 bg-white text-black px-2 py-1 rounded-md text-sm"} />
         <input name="party" value={form.party} onChange={handleChange} placeholder="Party" className={dark ? "border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded-md text-sm" : "border border-gray-300 bg-white text-black px-2 py-1 rounded-md text-sm"} />
@@ -327,7 +347,7 @@ export default function DueTrackerAdvanced() {
 
         <input name="method" value={form.method} onChange={handleChange} placeholder="Method" className={dark ? "border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded-md text-sm" : "border border-gray-300 bg-white text-black px-2 py-1 rounded-md text-sm"} />
 
-        <div className="col-span-9 flex gap-2 justify-center mt-2">
+        <div className="col-span-2 md:col-span-9 flex gap-2 justify-center mt-2">
           <button
             onClick={addEntry}
             className={`text-white active:scale-95 transition px-8 py-2 rounded-md min-w-[140px] text-center ${editId ? "bg-yellow-500 hover:bg-yellow-600" : "bg-blue-600 hover:bg-blue-700"}`}
