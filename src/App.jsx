@@ -158,8 +158,63 @@ const addEntry = async () => {
 
     let partyBalances = {};
 
-    // compute final balance per party
-    const finalBalances = {};
+    // FIFO BASED CORRECT LOGIC
+    let partyQueues = {};
+
+    return filtered.map((e) => {
+      const sale = Number(e.total || 0);
+      const payment = Number(e.received || 0);
+
+      if (!partyQueues[e.party]) partyQueues[e.party] = [];
+
+      // add sale
+      if (sale > 0) {
+        partyQueues[e.party].push({ remaining: sale, date: e.date });
+      }
+
+      // apply payment FIFO
+      let payLeft = payment;
+      while (payLeft > 0 && partyQueues[e.party].length > 0) {
+        const first = partyQueues[e.party][0];
+
+        if (first.remaining > payLeft) {
+          first.remaining -= payLeft;
+          payLeft = 0;
+        } else {
+          payLeft -= first.remaining;
+          partyQueues[e.party].shift();
+        }
+      }
+
+      const due = partyQueues[e.party].reduce((a,b)=>a+b.remaining,0);
+      const advance = payLeft > 0 ? payLeft : 0;
+
+      let status = "CLEARED";
+
+      if (e.type === "PAYMENT") {
+        status = "PAYMENT";
+      } else {
+        const billRemaining = sale > 0 ? partyQueues[e.party].reduce((a,b)=>a+b.remaining,0) : 0;
+
+        if (billRemaining === 0) status = "CLEARED";
+        else if (billRemaining < sale) status = "PARTIAL";
+        else status = "PENDING";
+      }
+
+      const oldest = partyQueues[e.party][0];
+      const days = oldest ? daysDiff(oldest.date) : 0;
+
+      return {
+        ...e,
+        payment,
+        sale,
+        due,
+        advance,
+        status,
+        fy: getFY(e.date),
+        days,
+      };
+    });
     filtered.forEach(e => {
       if (!finalBalances[e.party]) finalBalances[e.party] = 0;
       finalBalances[e.party] += Number(e.total || 0) - Number(e.received || 0);
