@@ -74,41 +74,40 @@ useEffect(() => {
 }, []);
 
 const addEntry = async () => {
-  if (!form.party) return;
+  try {
+    if (!form.party) return;
 
-  const payload = {
-    date: form.date,
-    billNo: form.billNo,
-    party: form.party,
-    salesperson: form.salesperson,
-    state: form.state,
-    method: form.method,
-    type: form.type,
-    total: Number(form.total || 0),
-    received: Number(form.received || 0),
-  };
-
-  if (editId !== null) {
-    await supabase.from("entries").update(payload).eq("id", editId);
-    setEditId(null);
-  } else {
-    await supabase.from("entries").insert([payload]);
-  }
-
-  fetchData();
-
-  setForm({ date: "", billNo: "", party: "", salesperson: "", state: "", method: "", total: "", received: "", type: "SALE" });
-};
+    const payload = {
+      date: form.date,
+      billNo: form.billNo,
+      party: form.party,
+      salesperson: form.salesperson,
+      state: form.state,
+      method: form.method,
+      type: form.type,
+      total: Number(form.total || 0),
+      received: Number(form.received || 0),
+    };
 
     if (editId !== null) {
-      setEntries((prev) => prev.map((e) => (e.id === editId ? newEntry : e)));
+      const { error } = await supabase.from("entries").update(payload).eq("id", editId);
+      if (error) throw error;
       setEditId(null);
     } else {
-      setEntries((prev) => [...prev, newEntry]);
+      const { error } = await supabase.from("entries").insert([payload]);
+      if (error) throw error;
     }
 
+    await fetchData();
+
     setForm({ date: "", billNo: "", party: "", salesperson: "", state: "", method: "", total: "", received: "", type: "SALE" });
-  };
+  } catch (err) {
+    console.error("Supabase Error:", err.message);
+    alert("Insert failed: " + err.message);
+  }
+};
+  // removed old local state logic (was breaking Supabase flow)
+
 
   const handleEdit = (row) => {
     setForm({
