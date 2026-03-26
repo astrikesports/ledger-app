@@ -158,7 +158,7 @@ const addEntry = async () => {
 
     let partyBalances = {};
 
-    // FIFO BASED CORRECT LOGIC
+    // FIFO BASED CORRECT LOGIC (FIXED PER BILL)
     let partyQueues = {};
 
     return filtered.map((e) => {
@@ -167,9 +167,9 @@ const addEntry = async () => {
 
       if (!partyQueues[e.party]) partyQueues[e.party] = [];
 
-      // add sale
+      // add sale with reference id
       if (sale > 0) {
-        partyQueues[e.party].push({ remaining: sale, date: e.date });
+        partyQueues[e.party].push({ id: e.id, remaining: sale, date: e.date });
       }
 
       // apply payment FIFO
@@ -186,6 +186,11 @@ const addEntry = async () => {
         }
       }
 
+      // find this bill remaining
+      let billRemaining = 0;
+      const found = partyQueues[e.party].find(x => x.id === e.id);
+      if (found) billRemaining = found.remaining;
+
       const due = partyQueues[e.party].reduce((a,b)=>a+b.remaining,0);
       const advance = payLeft > 0 ? payLeft : 0;
 
@@ -194,8 +199,6 @@ const addEntry = async () => {
       if (e.type === "PAYMENT") {
         status = "PAYMENT";
       } else {
-        const billRemaining = sale > 0 ? partyQueues[e.party].reduce((a,b)=>a+b.remaining,0) : 0;
-
         if (billRemaining === 0) status = "CLEARED";
         else if (billRemaining < sale) status = "PARTIAL";
         else status = "PENDING";
