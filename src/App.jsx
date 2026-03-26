@@ -201,7 +201,13 @@ const addEntry = async () => {
 
       const billRemaining = billRemainingMap[e.id] || 0;
 
-      const due = Object.values(billRemainingMap).reduce((a, b) => a + b, 0);
+      // FIX: due should be per party only (not global)
+      const due = Object.entries(billRemainingMap)
+        .filter(([id, _]) => {
+          const row = filtered.find(x => x.id == id);
+          return row && row.party === e.party;
+        })
+        .reduce((a, [_, b]) => a + b, 0);
       const advance = due === 0 && payment > sale ? payment - sale : 0;
 
       let status = "CLEARED";
