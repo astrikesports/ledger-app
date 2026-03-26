@@ -215,53 +215,7 @@ const addEntry = async () => {
         days,
       };
     });
-    filtered.forEach(e => {
-      if (!finalBalances[e.party]) finalBalances[e.party] = 0;
-      finalBalances[e.party] += Number(e.total || 0) - Number(e.received || 0);
-    });
-
-    return filtered.map((e) => {
-      const sale = Number(e.total || 0);
-      const payment = Number(e.received || 0);
-
-      if (!partyBalances[e.party]) partyBalances[e.party] = 0;
-      partyBalances[e.party] += sale - payment;
-
-      const balance = partyBalances[e.party];
-      const due = balance > 0 ? balance : 0;
-      const advance = balance < 0 ? Math.abs(balance) : 0;
-
-      let status = "CLEARED";
-
-      if (e.type === "PAYMENT") {
-        status = "PAYMENT";
-      } else {
-        // NEW: use FINAL party balance (not running row)
-        const finalBalance = finalBalances[e.party] || 0;
-
-        if (finalBalance === 0) {
-          status = "CLEARED";
-        } else if (finalBalance > 0 && finalBalance < sale) {
-          status = "PARTIAL";
-        } else if (finalBalance > 0) {
-          status = "PENDING";
-        } else if (finalBalance < 0) {
-          status = "ADVANCE";
-        }
-      }
-
-      return {
-        ...e,
-        payment,
-        sale,
-        balance,
-        due,
-        advance,
-        status,
-        fy: getFY(e.date),
-        days: (sale > 0 && (finalBalances[e.party] || 0) > 0) ? daysDiff(e.date) : 0,
-      };
-    });
+    
   };
 
   let ledgerRows = getLedgerRows();
