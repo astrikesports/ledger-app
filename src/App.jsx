@@ -158,21 +158,21 @@ const addEntry = async () => {
 
     let partyBalances = {};
 
-    // FIFO BASED CORRECT LOGIC (FIXED PER BILL)
+    // FINAL FIFO FIX (2 PASS - CORRECT)
     let partyQueues = {};
+    let billRemainingMap = {};
 
-    return filtered.map((e) => {
+    // PASS 1: APPLY ALL PAYMENTS
+    filtered.forEach((e) => {
       const sale = Number(e.total || 0);
       const payment = Number(e.received || 0);
 
       if (!partyQueues[e.party]) partyQueues[e.party] = [];
 
-      // add sale with reference id
       if (sale > 0) {
         partyQueues[e.party].push({ id: e.id, remaining: sale, date: e.date });
       }
 
-      // apply payment FIFO
       let payLeft = payment;
       while (payLeft > 0 && partyQueues[e.party].length > 0) {
         const first = partyQueues[e.party][0];
@@ -185,14 +185,24 @@ const addEntry = async () => {
           partyQueues[e.party].shift();
         }
       }
+    });
 
-      // find this bill remaining
-      let billRemaining = 0;
-      const found = partyQueues[e.party].find(x => x.id === e.id);
-      if (found) billRemaining = found.remaining;
+    // STORE FINAL REMAINING
+    Object.keys(partyQueues).forEach((party) => {
+      partyQueues[party].forEach((b) => {
+        billRemainingMap[b.id] = b.remaining;
+      });
+    });
 
-      const due = partyQueues[e.party].reduce((a,b)=>a+b.remaining,0);
-      const advance = payLeft > 0 ? payLeft : 0;
+    // PASS 2: MAP RESULT
+    return filtered.map((e) => {
+      const sale = Number(e.total || 0);
+      const payment = Number(e.received || 0);
+
+      const billRemaining = billRemainingMap[e.id] || 0;
+
+      const due = Object.values(billRemainingMap).reduce((a, b) => a + b, 0);
+      const advance = due === 0 && payment > sale ? payment - sale : 0;
 
       let status = "CLEARED";
 
@@ -204,8 +214,7 @@ const addEntry = async () => {
         else status = "PENDING";
       }
 
-      const oldest = partyQueues[e.party][0];
-      const days = oldest ? daysDiff(oldest.date) : 0;
+      const days = billRemaining > 0 ? daysDiff(e.date) : 0;
 
       return {
         ...e,
