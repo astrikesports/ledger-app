@@ -262,9 +262,8 @@ const addEntry = async () => {
   if (daysFilter === "25-30") ledgerRows = ledgerRows.filter(r => r.days >= 25 && r.days <= 30);
   if (daysFilter === "15-25") ledgerRows = ledgerRows.filter(r => r.days > 15 && r.days < 25);
 
-  const totalPages = Math.max(1, Math.ceil(ledgerRows.length / rowsPerPage));
-  const start = (currentPage - 1) * rowsPerPage;
-  const paginatedRows = ledgerRows.slice(start, start + rowsPerPage);
+  // FIX: remove pagination (show all rows)
+  const paginatedRows = ledgerRows;
 
   // detect party from search also
   const searchedParties = [...new Set(entries
