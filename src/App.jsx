@@ -202,7 +202,7 @@ const addEntry = async () => {
       const sale = Number(e.total || 0);
       const payment = Number(e.received || 0);
 
-      const billRemaining = billRemainingMap[e.id] || 0;
+      const billRemaining = billRemainingMap[e.id] || 0; // per bill due
 
       // FIX: due should be per party only (not global)
       const due = Object.entries(billRemainingMap)
@@ -240,6 +240,7 @@ const addEntry = async () => {
         ...e,
         payment,
         sale,
+        billDue: billRemaining, // ✅ NEW (per bill due)
         due,
         advance,
         status,
@@ -532,7 +533,8 @@ const addEntry = async () => {
               <th className={dark ? "px-4 py-3 text-white" : "px-4 py-3 text-gray-900 font-semibold"}>Method</th>
               <th className="px-4 py-3 text-right">Sale</th>
               <th className="px-4 py-3 text-right">Payment</th>
-              <th className="px-4 py-3 text-right">Due</th>
+              <th className="px-4 py-3 text-right">Bill Due</th>
+              <th className="px-4 py-3 text-right">Total Due</th>
               <th className="px-4 py-3 text-right">Advance</th>
               <th className="px-4 py-3 text-center">Status</th>
               <th className="px-4 py-3 text-center">Days</th>
@@ -567,6 +569,14 @@ const addEntry = async () => {
 
                 <td className={dark ? "px-4 py-3 text-right text-green-300 font-semibold" : "px-4 py-3 text-right text-green-600 font-semibold"}>
                   {row.payment > 0 ? format(row.payment) : "—"}
+                </td>
+
+                <td className="px-4 py-3 text-right">
+                  {row.billDue > 0 ? (
+                    <span className={dark ? "text-red-300 font-semibold" : "text-red-600 font-semibold"}>{format(row.billDue)}</span>
+                  ) : (
+                    <span className="text-gray-400 dark:text-gray-500">—</span>
+                  )}
                 </td>
 
                 <td className="px-4 py-3 text-right">
