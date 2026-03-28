@@ -50,6 +50,7 @@ export default function DueTrackerAdvanced() {
     salesperson: "",
     state: "",
     method: "",
+    paymentType: "", // NEW (CREDIT / COD)
     total: "",
     received: "",
     type: "SALE",
@@ -84,6 +85,7 @@ const addEntry = async () => {
       salesperson: form.salesperson,
       state: form.state,
       method: form.method,
+      paymentType: form.paymentType,
       type: form.type,
       total: Number(form.total || 0),
       received: Number(form.received || 0),
@@ -100,7 +102,7 @@ const addEntry = async () => {
 
     await fetchData();
 
-    setForm({ date: "", billNo: "", party: "", salesperson: "", state: "", method: "", total: "", received: "", type: "SALE" });
+    setForm({ date: "", billNo: "", party: "", salesperson: "", state: "", method: "", paymentType: "", total: "", received: "", type: "SALE" });
   } catch (err) {
     console.error("Supabase Error:", err.message);
     alert("Insert failed: " + err.message);
@@ -367,7 +369,12 @@ const addEntry = async () => {
         <select name="type" value={form.type} onChange={handleChange} className={dark ? "border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded-md text-sm" : "border border-gray-300 bg-white text-black px-2 py-1 rounded-md text-sm"}>
           <option value="SALE">Sale</option>
           <option value="PAYMENT">Payment</option>
-          <option value="CASH">Cash</option>
+        </select>
+
+        <select name="paymentType" value={form.paymentType} onChange={handleChange} className={dark ? "border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded-md text-sm" : "border border-gray-300 bg-white text-black px-2 py-1 rounded-md text-sm"}>
+          <option value="">Credit / COD</option>
+          <option value="CREDIT">Credit</option>
+          <option value="COD">COD</option>
         </select>
 
         <input name="total" value={form.total} onChange={handleChange} placeholder="Sale" className={dark ? "border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded-md text-sm" : "border border-gray-300 bg-white text-black px-2 py-1 rounded-md text-sm"} />
@@ -540,7 +547,7 @@ const addEntry = async () => {
                 </td>
 
                 <td className={dark ? "px-4 py-3 text-white" : "px-4 py-3 text-gray-800 font-medium"}>
-                  {row.method || "—"}
+                  {row.method || "—"} {row.paymentType ? `(${row.paymentType})` : ""}
                 </td>
 
                 <td className={dark ? "px-4 py-3 text-right text-red-300 font-semibold" : "px-4 py-3 text-right text-red-600 font-semibold"}>
