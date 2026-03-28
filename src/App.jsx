@@ -211,7 +211,18 @@ const addEntry = async () => {
           return row && row.party === e.party;
         })
         .reduce((a, [_, b]) => a + b, 0);
-      const advance = due === 0 && payment > sale ? payment - sale : 0;
+      // FIXED: advance should be calculated party-wise (not per row)
+      const partyTotalSale = filtered
+        .filter(x => x.party === e.party)
+        .reduce((a, b) => a + Number(b.total || 0), 0);
+
+      const partyTotalPayment = filtered
+        .filter(x => x.party === e.party)
+        .reduce((a, b) => a + Number(b.received || 0), 0);
+
+      const advance = partyTotalPayment > partyTotalSale
+        ? partyTotalPayment - partyTotalSale
+        : 0;
 
       let status = "CLEARED";
 
