@@ -119,6 +119,7 @@ const addEntry = async () => {
       salesperson: row.salesperson || "",
       state: row.state || "",
       method: row.method || "",
+      paymentType: row.paymentType || "",
       total: row.total,
       received: row.received,
       type: row.type || "SALE",
@@ -385,7 +386,7 @@ const addEntry = async () => {
           <option value="CASH">Cash</option>
           <option value="BANK">Bank</option>
           <option value="UPI">UPI</option>
-        </select> className={dark ? "border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded-md text-sm" : "border border-gray-300 bg-white text-black px-2 py-1 rounded-md text-sm"} />
+        </select>
 
         <div className="col-span-2 md:col-span-9 flex gap-2 justify-center mt-2">
           <button
@@ -399,7 +400,7 @@ const addEntry = async () => {
             <button
               onClick={() => {
                 setEditId(null);
-                setForm({ date: "", billNo: "", party: "", salesperson: "", state: "", method: "", total: "", received: "", type: "SALE" });
+                setForm({ date: "", billNo: "", party: "", salesperson: "", state: "", method: "", paymentType: "", total: "", received: "", type: "SALE" });
               }}
               className={`px-8 py-2 rounded-md min-w-[140px] text-center text-white active:scale-95 transition ${dark ? "bg-gray-600 hover:bg-gray-700" : "bg-gray-400 hover:bg-gray-500"}`}
             >
