@@ -545,7 +545,13 @@ const addEntry = async () => {
             {paginatedRows.map((row, i) => (
               <tr
                 key={row.id}
-                className={`border-t ${dark ? "border-gray-700 hover:bg-gray-700" : "border-gray-200 hover:bg-blue-50"} transition cursor-pointer ${i % 2 === 0 ? (dark ? "bg-gray-800" : "bg-white") : (dark ? "bg-gray-800/50" : "bg-blue-50/30")}`}
+                className={`border-t ${dark ? "border-gray-700 hover:bg-gray-700" : "border-gray-200 hover:bg-blue-50"} transition cursor-pointer ${
+                  row.billDue > 0
+                    ? dark
+                      ? "shadow-inner shadow-red-900/30"
+                      : "bg-red-50/30"
+                    : ""
+                } ${i % 2 === 0 ? (dark ? "bg-gray-800" : "bg-white") : (dark ? "bg-gray-800/50" : "bg-blue-50/30")}`} ${i % 2 === 0 ? (dark ? "bg-gray-800" : "bg-white") : (dark ? "bg-gray-800/50" : "bg-blue-50/30")}`}
               >
                 <td className={dark ? "px-4 py-3 whitespace-nowrap text-white" : "px-4 py-3 whitespace-nowrap text-gray-800"}>{row.date}</td>
                 <td className={dark ? "px-4 py-3 font-medium text-white" : "px-4 py-3 font-medium text-gray-900"}>{row.party}</td>
@@ -560,7 +566,11 @@ const addEntry = async () => {
                 </td>
 
                 <td className={dark ? "px-4 py-3 text-white" : "px-4 py-3 text-gray-800 font-medium"}>
-                  {row.method || "—"} {row.paymentType ? `(${row.paymentType})` : ""}
+                  {row.method || "—"} {row.paymentType ? (
+                    <span className={`ml-1 text-xs px-1.5 py-0.5 rounded ${row.paymentType === "COD" ? (dark ? "bg-yellow-900/40 text-yellow-300" : "bg-yellow-100 text-yellow-700") : (dark ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-700")}`}>
+                      {row.paymentType}
+                    </span>
+                  ) : ""}
                 </td>
 
                 <td className={dark ? "px-4 py-3 text-right text-red-300 font-semibold" : "px-4 py-3 text-right text-red-600 font-semibold"}>
@@ -573,7 +583,15 @@ const addEntry = async () => {
 
                 <td className="px-4 py-3 text-right">
                   {row.billDue > 0 ? (
-                    <span className={dark ? "text-red-300 font-semibold" : "text-red-600 font-semibold"}>{format(row.billDue)}</span>
+                    <span
+                      className={`px-2 py-1 rounded-md text-xs font-bold ${
+                        dark
+                          ? "bg-red-900/40 text-red-300"
+                          : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      {format(row.billDue)}
+                    </span>
                   ) : (
                     <span className="text-gray-400 dark:text-gray-500">—</span>
                   )}
