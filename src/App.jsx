@@ -282,12 +282,12 @@ const addEntry = async () => {
   const partyPayment = partyFiltered.reduce((a,b)=>a+Number(b.received||0),0);
   const partyBalance = partySale - partyPayment;
 
-  // 🆕 SALESPERSON SUMMARY
-  const salesFiltered = entries
+  // 🆕 SALESPERSON SUMMARY (FIXED - use filtered data)
+  const salesFiltered = ledgerRows
     .filter(e => selectedSales === "ALL" ? true : e.salesperson === selectedSales);
 
-  const salesTotalSale = salesFiltered.reduce((a,b)=>a+Number(b.total||0),0);
-  const salesTotalPayment = salesFiltered.reduce((a,b)=>a+Number(b.received||0),0);
+  const salesTotalSale = salesFiltered.reduce((a,b)=>a+Number(b.sale||0),0);
+  const salesTotalPayment = salesFiltered.reduce((a,b)=>a+Number(b.payment||0),0);
   const salesBalance = salesTotalSale - salesTotalPayment;
 
   const lastPaymentParty = partyFiltered
