@@ -212,8 +212,8 @@ const addEntry = async () => {
 
       let status = "CLEARED";
 
-      if (e.type === "PAYMENT") {
-        status = "PAYMENT";
+      if (e.type === "PAYMENT" || e.type === "CASH") {
+        status = e.type;
       } else {
         if (billRemaining === 0) status = "CLEARED";
         else if (billRemaining < sale) status = "PARTIAL";
@@ -367,12 +367,18 @@ const addEntry = async () => {
         <select name="type" value={form.type} onChange={handleChange} className={dark ? "border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded-md text-sm" : "border border-gray-300 bg-white text-black px-2 py-1 rounded-md text-sm"}>
           <option value="SALE">Sale</option>
           <option value="PAYMENT">Payment</option>
+          <option value="CASH">Cash</option>
         </select>
 
         <input name="total" value={form.total} onChange={handleChange} placeholder="Sale" className={dark ? "border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded-md text-sm" : "border border-gray-300 bg-white text-black px-2 py-1 rounded-md text-sm"} />
         <input name="received" value={form.received} onChange={handleChange} placeholder="Payment" className={dark ? "border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded-md text-sm" : "border border-gray-300 bg-white text-black px-2 py-1 rounded-md text-sm"} />
 
-        <input name="method" value={form.method} onChange={handleChange} placeholder="Method" className={dark ? "border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded-md text-sm" : "border border-gray-300 bg-white text-black px-2 py-1 rounded-md text-sm"} />
+        <select name="method" value={form.method} onChange={handleChange} className={dark ? "border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded-md text-sm" : "border border-gray-300 bg-white text-black px-2 py-1 rounded-md text-sm"}>
+          <option value="">Method</option>
+          <option value="CASH">Cash</option>
+          <option value="BANK">Bank</option>
+          <option value="UPI">UPI</option>
+        </select> className={dark ? "border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded-md text-sm" : "border border-gray-300 bg-white text-black px-2 py-1 rounded-md text-sm"} />
 
         <div className="col-span-2 md:col-span-9 flex gap-2 justify-center mt-2">
           <button
@@ -528,7 +534,7 @@ const addEntry = async () => {
                 <td className={dark ? "px-4 py-3 text-white" : "px-4 py-3 text-gray-800"}>{row.state || "—"}</td>
 
                 <td className={dark ? "px-4 py-3 text-white" : "px-4 py-3 text-gray-800 font-semibold"}>
-                  <span className={`px-2 py-1 rounded-full text-xs font-bold ${row.type === "PAYMENT" ? (dark ? "bg-green-900/40 text-green-300" : "bg-green-100 text-green-700") : (dark ? "bg-blue-900/40 text-blue-300" : "bg-blue-100 text-blue-700")}`}>
+                  <span className={`px-2 py-1 rounded-full text-xs font-bold ${row.type === "PAYMENT" || row.type === "CASH" ? (dark ? "bg-green-900/40 text-green-300" : "bg-green-100 text-green-700") : (dark ? "bg-blue-900/40 text-blue-300" : "bg-blue-100 text-blue-700")}`}>
                     {row.type}
                   </span>
                 </td>
@@ -562,7 +568,7 @@ const addEntry = async () => {
                 </td>
 
                 <td className={dark ? "px-4 py-3 text-center text-gray-200" : "px-4 py-3 text-center"}>
-                  {row.type === "PAYMENT" ? (
+                  {row.type === "PAYMENT" || row.type === "CASH" ? (
                     <span className="text-gray-400 dark:text-gray-500">—</span>
                   ) : (
                     <span
@@ -581,7 +587,7 @@ const addEntry = async () => {
                 </td>
 
                 <td className="px-4 py-3 text-center">
-                  {row.type === "PAYMENT" ? (
+                  {row.type === "PAYMENT" || row.type === "CASH" ? (
                     <span className="text-gray-400 dark:text-gray-500">—</span>
                   ) : (
                     <span className={`px-2 py-1 rounded-full text-xs font-semibold ${row.days > 30 ? (dark ? "bg-red-600 text-white" : "bg-red-600 text-white") : row.days >= 25 ? (dark ? "bg-red-900/40 text-red-300" : "bg-red-200 text-red-700") : row.days > 15 ? (dark ? "bg-yellow-900/40 text-yellow-300" : "bg-yellow-100 text-yellow-700") : (dark ? "bg-gray-800 text-gray-300" : "bg-gray-100 text-gray-600")}`}>
