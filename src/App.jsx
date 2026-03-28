@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useLayoutEffect } from "react";
 import { supabase } from "./supabase";
 
