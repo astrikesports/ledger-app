@@ -429,7 +429,23 @@ const addEntry = async () => {
         </div>
       </div>
 
-      {/* SALESPERSON CARD */}
+      {/* SUMMARY */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className={dark ? "bg-red-900/30 border border-red-700 rounded-2xl p-4" : "bg-red-50 border border-red-200 rounded-2xl p-4"}>
+          <p className={dark ? "text-sm text-gray-300" : "text-sm text-gray-700"}>Total Sale</p>
+          <h2 className={dark ? "text-red-300 font-bold" : "text-red-600 font-bold"}>{format(entries.reduce((a,b)=>a+Number(b.total||0),0))}</h2>
+        </div>
+        <div className={dark ? "bg-green-900/30 border border-green-700 rounded-2xl p-4" : "bg-green-50 border border-green-200 rounded-2xl p-4"}>
+          <p className={dark ? "text-sm text-gray-300" : "text-sm text-gray-700"}>Total Payment</p>
+          <h2 className={dark ? "text-green-300 font-bold" : "text-green-600 font-bold"}>{format(entries.reduce((a,b)=>a+Number(b.received||0),0))}</h2>
+        </div>
+        <div className={dark ? "bg-blue-900/30 border border-blue-700 rounded-2xl p-4" : "bg-blue-50 border border-blue-200 rounded-2xl p-4"}>
+          <p className={dark ? "text-sm text-gray-300" : "text-sm text-gray-700"}>Net</p>
+          <h2 className={dark ? "text-blue-300 font-bold" : "text-blue-700 font-bold"}>{format(entries.reduce((a,b)=>a+Number(b.total||0),0)-entries.reduce((a,b)=>a+Number(b.received||0),0))}</h2>
+        </div>
+      </div>
+
+      {/* SALESPERSON CARD (NOW BELOW SUMMARY) */}
       <div className={dark ? "bg-purple-900/30 border border-purple-700 rounded-2xl p-4 mb-4" : "bg-purple-50 border border-purple-200 rounded-2xl p-4 mb-4"}>
         <h2 className={dark ? "font-semibold text-lg text-purple-300 mb-2" : "font-semibold text-lg text-purple-700 mb-2"}>
           {selectedSales === "ALL" ? "All Salespersons" : selectedSales} (Sales Summary)
@@ -450,7 +466,7 @@ const addEntry = async () => {
         </div>
       </div>
 
-      {/* PARTY CARD */}
+      {/* PARTY CARD */ */}
       {activeParty !== "ALL" && (
         <div
           className={
