@@ -546,12 +546,20 @@ const addEntry = async () => {
               <tr
                 key={row.id}
                 className={`border-t ${dark ? "border-gray-700 hover:bg-gray-700" : "border-gray-200 hover:bg-blue-50"} transition cursor-pointer ${
+                  i % 2 === 0
+                    ? dark
+                      ? "bg-gray-800"
+                      : "bg-white"
+                    : dark
+                    ? "bg-gray-800/50"
+                    : "bg-blue-50/30"
+                } ${
                   row.billDue > 0
                     ? dark
-                      ? "shadow-inner shadow-red-900/30"
-                      : "bg-red-50/30"
+                      ? "ring-1 ring-red-500/50 shadow-lg shadow-red-900/30"
+                      : "bg-red-50 ring-1 ring-red-300"
                     : ""
-                } ${i % 2 === 0 ? (dark ? "bg-gray-800" : "bg-white") : (dark ? "bg-gray-800/50" : "bg-blue-50/30")}`
+                }`
               >
                 <td className={dark ? "px-4 py-3 whitespace-nowrap text-white" : "px-4 py-3 whitespace-nowrap text-gray-800"}>{row.date}</td>
                 <td className={dark ? "px-4 py-3 font-medium text-white" : "px-4 py-3 font-medium text-gray-900"}>{row.party}</td>
