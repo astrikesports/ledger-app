@@ -551,7 +551,7 @@ const addEntry = async () => {
                       ? "shadow-inner shadow-red-900/30"
                       : "bg-red-50/30"
                     : ""
-                } ${i % 2 === 0 ? (dark ? "bg-gray-800" : "bg-white") : (dark ? "bg-gray-800/50" : "bg-blue-50/30")}`} ${i % 2 === 0 ? (dark ? "bg-gray-800" : "bg-white") : (dark ? "bg-gray-800/50" : "bg-blue-50/30")}`}
+                } ${i % 2 === 0 ? (dark ? "bg-gray-800" : "bg-white") : (dark ? "bg-gray-800/50" : "bg-blue-50/30")}`
               >
                 <td className={dark ? "px-4 py-3 whitespace-nowrap text-white" : "px-4 py-3 whitespace-nowrap text-gray-800"}>{row.date}</td>
                 <td className={dark ? "px-4 py-3 font-medium text-white" : "px-4 py-3 font-medium text-gray-900"}>{row.party}</td>
