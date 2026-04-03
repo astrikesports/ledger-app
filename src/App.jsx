@@ -389,6 +389,7 @@ const addEntry = async () => {
         <select name="type" value={form.type} onChange={handleChange} className={dark ? "border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded-md text-sm" : "border border-gray-300 bg-white text-black px-2 py-1 rounded-md text-sm"}>
           <option value="SALE">Sale</option>
           <option value="PAYMENT">Payment</option>
+          <option value="CREDIT_NOTE">Credit Note</option> {/* ✅ ADD YE */}
         </select>
 
         <select name="paymentType" value={form.paymentType} onChange={handleChange} className={dark ? "border border-gray-600 bg-gray-800 text-white px-2 py-1 rounded-md text-sm" : "border border-gray-300 bg-white text-black px-2 py-1 rounded-md text-sm"}>
