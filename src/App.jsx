@@ -132,7 +132,7 @@ const addEntry = async () => {
   fetchData();
 };
 
-  const partyList = ["ALL", ...new Set(entries.map((e) => e.party))];
+  const partyList = ["ALL", ...[...new Set(entries.map((e) => e.party))].sort((a, b) => a.localeCompare(b)),];
   const salesList = ["ALL", ...new Set(entries.map((e) => e.salesperson).filter(Boolean))];
   const fyList = ["ALL", ...new Set(entries.map((e) => getFY(e.date)).filter(Boolean))];
 
