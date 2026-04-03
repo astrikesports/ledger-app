@@ -333,8 +333,21 @@ const addEntry = async () => {
             {fyList.map(fy=><option key={fy}>{fy}</option>)}
           </select>
 
-          <select value={selectedSales} onChange={(e)=>setSelectedSales(e.target.value); setSelectedParty("ALL");}} className={dark ? "border border-gray-600 bg-gray-800 text-white px-4 py-2.5 rounded-xl" : "border border-gray-200 bg-white text-black px-4 py-2.5 rounded-xl"}>
-            {salesList.map(s=><option key={s}>{s}</option>)}
+          <select
+            value={selectedSales}
+            onChange={(e) => {
+              setSelectedSales(e.target.value);
+              setSelectedParty("ALL");   // 🔥 PARTY RESET
+            }}
+            className={
+              dark
+                ? "border border-gray-600 bg-gray-800 text-white px-4 py-2.5 rounded-xl"
+                : "border border-gray-200 bg-white text-black px-4 py-2.5 rounded-xl"
+            }
+          >
+            {salesList.map((s) => (
+              <option key={s}>{s}</option>
+            ))}
           </select>
 
           <input
