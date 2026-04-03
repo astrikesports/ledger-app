@@ -325,7 +325,7 @@ const addEntry = async () => {
             className={dark ? "border border-gray-600 bg-gray-800 text-white px-4 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition" : "border border-gray-200 bg-white text-black px-4 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition"}
           />
 
-          <select value={activeParty} onChange={(e)=>{setSelectedParty(e.target.value); setCurrentPage(1);}} className={dark ? "border border-gray-600 bg-gray-800 text-white px-4 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition" : "border border-gray-200 bg-white text-black px-4 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition"}>
+          <select value={activeParty} onChange={(e)=>{setSelectedParty(e.target.value); setSelectedSales("ALL"); setCurrentPage(1);}} className={dark ? "border border-gray-600 bg-gray-800 text-white px-4 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition" : "border border-gray-200 bg-white text-black px-4 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition"}>
             {partyList.map(p=><option key={p}>{p}</option>)}
           </select>
 
