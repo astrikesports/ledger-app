@@ -21,9 +21,9 @@ const daysDiff = (dateStr) => {
 
 export default function DueTrackerAdvanced() {
   const [dark, setDark] = useState(() => {
-  const saved = localStorage.getItem("theme");
-  return saved ? saved === "dark" : false;
-});
+    const saved = localStorage.getItem("theme");
+    return saved ? saved === "dark" : false;
+  });
 
   useLayoutEffect(() => {
     const root = document.documentElement;
@@ -56,60 +56,71 @@ export default function DueTrackerAdvanced() {
     type: "SALE", // SALE | PAYMENT | CREDIT_NOTE
   });
 
-  
-
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const fetchData = async () => {
-  const { data } = await supabase
-    .from("entries")
-    .select("*")
-    .order("date", { ascending: true });
-  setEntries(data || []);
-};
+    const { data } = await supabase
+      .from("entries")
+      .select("*")
+      .order("date", { ascending: true });
+    setEntries(data || []);
+  };
 
-useEffect(() => {
-  fetchData();
-}, []);
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-const addEntry = async () => {
-  try {
-    if (!form.party) return;
+  const addEntry = async () => {
+    try {
+      if (!form.party) return;
 
-    const payload = {
-      date: form.date,
-      billNo: form.billNo,
-      party: form.party,
-      salesperson: form.salesperson,
-      state: form.state,
-      method: form.method,
-      paymentType: form.paymentType,
-      type: form.type,
-      total: Number(form.total || 0),
-      received: Number(form.received || 0),
-    };
+      const payload = {
+        date: form.date,
+        billNo: form.billNo,
+        party: form.party,
+        salesperson: form.salesperson,
+        state: form.state,
+        method: form.method,
+        paymentType: form.paymentType,
+        type: form.type,
+        total: Number(form.total || 0),
+        received: Number(form.received || 0),
+      };
 
-    if (editId !== null) {
-      const { error } = await supabase.from("entries").update(payload).eq("id", editId);
-      if (error) throw error;
-      setEditId(null);
-    } else {
-      const { error } = await supabase.from("entries").insert([payload]);
-      if (error) throw error;
+      if (editId !== null) {
+        const { error } = await supabase
+          .from("entries")
+          .update(payload)
+          .eq("id", editId);
+        if (error) throw error;
+        setEditId(null);
+      } else {
+        const { error } = await supabase.from("entries").insert([payload]);
+        if (error) throw error;
+      }
+
+      await fetchData();
+
+      setForm({
+        date: "",
+        billNo: "",
+        party: "",
+        salesperson: "",
+        state: "",
+        method: "",
+        paymentType: "",
+        total: "",
+        received: "",
+        type: "SALE",
+      });
+    } catch (err) {
+      console.error("Supabase Error:", err.message);
+      alert("Insert failed: " + err.message);
     }
-
-    await fetchData();
-
-    setForm({ date: "", billNo: "", party: "", salesperson: "", state: "", method: "", paymentType: "", total: "", received: "", type: "SALE" });
-  } catch (err) {
-    console.error("Supabase Error:", err.message);
-    alert("Insert failed: " + err.message);
-  }
-};
+  };
   // removed old local state logic (was breaking Supabase flow)
-
 
   const handleEdit = (row) => {
     setForm({
@@ -128,13 +139,19 @@ const addEntry = async () => {
   };
 
   const handleDelete = async (id) => {
-  await supabase.from("entries").delete().eq("id", id);
-  fetchData();
-};
+    await supabase.from("entries").delete().eq("id", id);
+    fetchData();
+  };
 
   const partyList = ["ALL", ...new Set(entries.map((e) => e.party))];
-  const salesList = ["ALL", ...new Set(entries.map((e) => e.salesperson).filter(Boolean))];
-  const fyList = ["ALL", ...new Set(entries.map((e) => getFY(e.date)).filter(Boolean))];
+  const salesList = [
+    "ALL",
+    ...new Set(entries.map((e) => e.salesperson).filter(Boolean)),
+  ];
+  const fyList = [
+    "ALL",
+    ...new Set(entries.map((e) => getFY(e.date)).filter(Boolean)),
+  ];
 
   const getLedgerRows = () => {
     let filtered = entries.filter((e) =>
@@ -142,11 +159,13 @@ const addEntry = async () => {
     );
 
     if (stateSearch) {
-      filtered = filtered.filter(e => (e.state || "").toLowerCase().includes(stateSearch.toLowerCase()));
+      filtered = filtered.filter((e) =>
+        (e.state || "").toLowerCase().includes(stateSearch.toLowerCase())
+      );
     }
 
     if (selectedSales !== "ALL") {
-      filtered = filtered.filter(e => e.salesperson === selectedSales);
+      filtered = filtered.filter((e) => e.salesperson === selectedSales);
     }
 
     if (selectedParty !== "ALL") {
@@ -207,22 +226,23 @@ const addEntry = async () => {
       // FIX: due should be per party only (not global)
       const due = Object.entries(billRemainingMap)
         .filter(([id, _]) => {
-          const row = filtered.find(x => x.id == id);
+          const row = filtered.find((x) => x.id == id);
           return row && row.party === e.party;
         })
         .reduce((a, [_, b]) => a + b, 0);
       // FIXED: advance should be calculated party-wise (not per row)
       const partyTotalSale = filtered
-        .filter(x => x.party === e.party)
+        .filter((x) => x.party === e.party)
         .reduce((a, b) => a + Number(b.total || 0), 0);
 
       const partyTotalPayment = filtered
-        .filter(x => x.party === e.party)
+        .filter((x) => x.party === e.party)
         .reduce((a, b) => a + Number(b.received || 0), 0);
 
-      const advance = partyTotalPayment > partyTotalSale
-        ? partyTotalPayment - partyTotalSale
-        : 0;
+      const advance =
+        partyTotalPayment > partyTotalSale
+          ? partyTotalPayment - partyTotalSale
+          : 0;
 
       let status = "CLEARED";
 
@@ -248,63 +268,99 @@ const addEntry = async () => {
         days,
       };
     });
-    
   };
 
   let ledgerRows = getLedgerRows();
 
   // STATUS FILTER
-  if (filter === "PENDING") ledgerRows = ledgerRows.filter(r => r.status === "PENDING");
-  if (filter === "ADVANCE") ledgerRows = ledgerRows.filter(r => r.status === "ADVANCE");
-  if (filter === "CLEARED") ledgerRows = ledgerRows.filter(r => r.status === "CLEARED");
+  if (filter === "PENDING")
+    ledgerRows = ledgerRows.filter((r) => r.status === "PENDING");
+  if (filter === "ADVANCE")
+    ledgerRows = ledgerRows.filter((r) => r.status === "ADVANCE");
+  if (filter === "CLEARED")
+    ledgerRows = ledgerRows.filter((r) => r.status === "CLEARED");
 
   // DAYS FILTER
-  if (daysFilter === ">30") ledgerRows = ledgerRows.filter(r => r.days > 30);
-  if (daysFilter === "25-30") ledgerRows = ledgerRows.filter(r => r.days >= 25 && r.days <= 30);
-  if (daysFilter === "15-25") ledgerRows = ledgerRows.filter(r => r.days > 15 && r.days < 25);
+  if (daysFilter === ">30") ledgerRows = ledgerRows.filter((r) => r.days > 30);
+  if (daysFilter === "25-30")
+    ledgerRows = ledgerRows.filter((r) => r.days >= 25 && r.days <= 30);
+  if (daysFilter === "15-25")
+    ledgerRows = ledgerRows.filter((r) => r.days > 15 && r.days < 25);
 
   // FIX: remove pagination (show all rows)
   const paginatedRows = ledgerRows;
 
   // detect party from search also
-  const searchedParties = [...new Set(entries
-    .filter(e => e.party.toLowerCase().includes(search.toLowerCase()))
-    .map(e => e.party))];
+  const searchedParties = [
+    ...new Set(
+      entries
+        .filter((e) => e.party.toLowerCase().includes(search.toLowerCase()))
+        .map((e) => e.party)
+    ),
+  ];
 
-  const activeParty = selectedParty !== "ALL" ? selectedParty : (searchedParties.length === 1 ? searchedParties[0] : "ALL");
+  const activeParty =
+    selectedParty !== "ALL"
+      ? selectedParty
+      : searchedParties.length === 1
+      ? searchedParties[0]
+      : "ALL";
 
   const partyFiltered = entries
-    .filter(e => e.party.toLowerCase().includes(search.toLowerCase()))
-    .filter(e => activeParty === "ALL" ? true : e.party === activeParty)
-    .filter(e => selectedFY === "ALL" ? true : getFY(e.date) === selectedFY);
+    .filter((e) => e.party.toLowerCase().includes(search.toLowerCase()))
+    .filter((e) => (activeParty === "ALL" ? true : e.party === activeParty))
+    .filter((e) =>
+      selectedFY === "ALL" ? true : getFY(e.date) === selectedFY
+    );
 
-  const partySale = partyFiltered.reduce((a,b)=>a+Number(b.total||0),0);
-  const partyPayment = partyFiltered.reduce((a,b)=>a+Number(b.received||0),0);
+  const partySale = partyFiltered.reduce((a, b) => a + Number(b.total || 0), 0);
+  const partyPayment = partyFiltered.reduce(
+    (a, b) => a + Number(b.received || 0),
+    0
+  );
   const partyBalance = partySale - partyPayment;
 
   // 🆕 SALESPERSON SUMMARY (FIXED - use filtered data)
-  const salesFiltered = ledgerRows
-    .filter(e => selectedSales === "ALL" ? true : e.salesperson === selectedSales);
+  const salesFiltered = ledgerRows.filter((e) =>
+    selectedSales === "ALL" ? true : e.salesperson === selectedSales
+  );
 
-  const salesTotalSale = salesFiltered.reduce((a,b)=>a+Number(b.sale||0),0);
-  const salesTotalPayment = salesFiltered.reduce((a,b)=>a+Number(b.payment||0),0);
+  const salesTotalSale = salesFiltered.reduce(
+    (a, b) => a + Number(b.sale || 0),
+    0
+  );
+  const salesTotalPayment = salesFiltered.reduce(
+    (a, b) => a + Number(b.payment || 0),
+    0
+  );
   const salesBalance = salesTotalSale - salesTotalPayment;
 
   const lastPaymentParty = partyFiltered
-    .filter(e => e.type === "PAYMENT")
-    .sort((a,b)=> new Date(b.date)-new Date(a.date))[0];
+    .filter((e) => e.type === "PAYMENT")
+    .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
 
   // FIX: compute days from ONLY outstanding (unpaid) sale bills
-  const maxDueDays = partyBalance > 0
-    ? ledgerRows
-        .filter(r => r.party === activeParty && r.type === "SALE" && r.status !== "CLEARED")
-        .map(r => r.days)
-        .reduce((a,b)=> Math.max(a,b), 0)
-    : 0;
+  const maxDueDays =
+    partyBalance > 0
+      ? ledgerRows
+          .filter(
+            (r) =>
+              r.party === activeParty &&
+              r.type === "SALE" &&
+              r.status !== "CLEARED"
+          )
+          .map((r) => r.days)
+          .reduce((a, b) => Math.max(a, b), 0)
+      : 0;
 
   return (
-    <div className={dark ? "p-6 w-full bg-gray-900 text-white min-h-screen" : "p-6 w-full bg-white text-black min-h-screen"}>
-
+    <div
+      className={
+        dark
+          ? "p-6 w-full bg-gray-900 text-white min-h-screen"
+          : "p-6 w-full bg-white text-black min-h-screen"
+      }
+    >
       {/* HEADER + FILTERS */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
         <div className="flex items-center gap-3">
@@ -321,37 +377,100 @@ const addEntry = async () => {
           <input
             placeholder="🔍 Search Party"
             value={search}
-            onChange={(e)=>{setSearch(e.target.value); setCurrentPage(1);}}
-            className={dark ? "border border-gray-600 bg-gray-800 text-white px-4 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition" : "border border-gray-200 bg-white text-black px-4 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition"}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCurrentPage(1);
+            }}
+            className={
+              dark
+                ? "border border-gray-600 bg-gray-800 text-white px-4 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                : "border border-gray-200 bg-white text-black px-4 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition"
+            }
           />
 
-          <select value={activeParty} onChange={(e)=>{setSelectedParty(e.target.value); setCurrentPage(1);}} className={dark ? "border border-gray-600 bg-gray-800 text-white px-4 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition" : "border border-gray-200 bg-white text-black px-4 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition"}>
-            {partyList.map(p=><option key={p}>{p}</option>)}
+          <select
+            value={activeParty}
+            onChange={(e) => {
+              setSelectedParty(e.target.value);
+              setCurrentPage(1);
+            }}
+            className={
+              dark
+                ? "border border-gray-600 bg-gray-800 text-white px-4 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                : "border border-gray-200 bg-white text-black px-4 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition"
+            }
+          >
+            {partyList.map((p) => (
+              <option key={p}>{p}</option>
+            ))}
           </select>
 
-          <select value={selectedFY} onChange={(e)=>{setSelectedFY(e.target.value); setCurrentPage(1);}} className={dark ? "border border-gray-600 bg-gray-800 text-white px-4 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition" : "border border-gray-200 bg-white text-black px-4 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition"}>
-            {fyList.map(fy=><option key={fy}>{fy}</option>)}
+          <select
+            value={selectedFY}
+            onChange={(e) => {
+              setSelectedFY(e.target.value);
+              setCurrentPage(1);
+            }}
+            className={
+              dark
+                ? "border border-gray-600 bg-gray-800 text-white px-4 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                : "border border-gray-200 bg-white text-black px-4 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition"
+            }
+          >
+            {fyList.map((fy) => (
+              <option key={fy}>{fy}</option>
+            ))}
           </select>
 
-          <select value={selectedSales} onChange={(e)=>setSelectedSales(e.target.value)} className={dark ? "border border-gray-600 bg-gray-800 text-white px-4 py-2.5 rounded-xl" : "border border-gray-200 bg-white text-black px-4 py-2.5 rounded-xl"}>
-            {salesList.map(s=><option key={s}>{s}</option>)}
+          <select
+            value={selectedSales}
+            onChange={(e) => setSelectedSales(e.target.value)}
+            className={
+              dark
+                ? "border border-gray-600 bg-gray-800 text-white px-4 py-2.5 rounded-xl"
+                : "border border-gray-200 bg-white text-black px-4 py-2.5 rounded-xl"
+            }
+          >
+            {salesList.map((s) => (
+              <option key={s}>{s}</option>
+            ))}
           </select>
 
           <input
             placeholder="State search"
             value={stateSearch}
-            onChange={(e)=>setStateSearch(e.target.value)}
-            className={dark ? "border border-gray-600 bg-gray-800 text-white px-4 py-2.5 rounded-xl" : "border border-gray-200 bg-white text-black px-4 py-2.5 rounded-xl"}
+            onChange={(e) => setStateSearch(e.target.value)}
+            className={
+              dark
+                ? "border border-gray-600 bg-gray-800 text-white px-4 py-2.5 rounded-xl"
+                : "border border-gray-200 bg-white text-black px-4 py-2.5 rounded-xl"
+            }
           />
 
-          <select value={filter} onChange={(e)=>setFilter(e.target.value)} className={dark ? "border border-gray-600 bg-gray-800 text-white px-4 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition" : "border border-gray-200 bg-white text-black px-4 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition"}>
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className={
+              dark
+                ? "border border-gray-600 bg-gray-800 text-white px-4 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                : "border border-gray-200 bg-white text-black px-4 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition"
+            }
+          >
             <option value="ALL">All Status</option>
             <option value="PENDING">Pending</option>
             <option value="ADVANCE">Advance</option>
             <option value="CLEARED">Cleared</option>
           </select>
 
-          <select value={daysFilter} onChange={(e)=>setDaysFilter(e.target.value)} className={dark ? "border border-gray-600 bg-gray-800 text-white px-4 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition" : "border border-gray-200 bg-white text-black px-4 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition"}>
+          <select
+            value={daysFilter}
+            onChange={(e) => setDaysFilter(e.target.value)}
+            className={
+              dark
+                ? "border border-gray-600 bg-gray-800 text-white px-4 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                : "border border-gray-200 bg-white text-black px-4 py-2.5 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 transition"
+            }
+          >
             <option value="ALL">All Days</option>
             <option value=">30">&gt; 30 Days</option>
             <option value="25-30">25 - 30 Days</option>
@@ -362,100 +481,258 @@ const addEntry = async () => {
 
       {/* SUMMARY */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className={dark ? "bg-red-900/30 border border-red-700 rounded-2xl p-4" : "bg-red-50 border border-red-200 rounded-2xl p-4"}>
-          <p className={dark ? "text-sm text-gray-300" : "text-sm text-gray-700"}>Total Sale</p>
-          <h2 className={dark ? "text-red-300 font-bold" : "text-red-600 font-bold"}>{format(entries.reduce((a,b)=>a+Number(b.total||0),0))}</h2>
+        <div
+          className={
+            dark
+              ? "bg-red-900/30 border border-red-700 rounded-2xl p-4"
+              : "bg-red-50 border border-red-200 rounded-2xl p-4"
+          }
+        >
+          <p
+            className={dark ? "text-sm text-gray-300" : "text-sm text-gray-700"}
+          >
+            Total Sale
+          </p>
+          <h2
+            className={
+              dark ? "text-red-300 font-bold" : "text-red-600 font-bold"
+            }
+          >
+            {format(entries.reduce((a, b) => a + Number(b.total || 0), 0))}
+          </h2>
         </div>
-        <div className={dark ? "bg-green-900/30 border border-green-700 rounded-2xl p-4" : "bg-green-50 border border-green-200 rounded-2xl p-4"}>
-          <p className={dark ? "text-sm text-gray-300" : "text-sm text-gray-700"}>Total Payment</p>
-          <h2 className={dark ? "text-green-300 font-bold" : "text-green-600 font-bold"}>{format(entries.reduce((a,b)=>a+Number(b.received||0),0))}</h2>
+        <div
+          className={
+            dark
+              ? "bg-green-900/30 border border-green-700 rounded-2xl p-4"
+              : "bg-green-50 border border-green-200 rounded-2xl p-4"
+          }
+        >
+          <p
+            className={dark ? "text-sm text-gray-300" : "text-sm text-gray-700"}
+          >
+            Total Payment
+          </p>
+          <h2
+            className={
+              dark ? "text-green-300 font-bold" : "text-green-600 font-bold"
+            }
+          >
+            {format(entries.reduce((a, b) => a + Number(b.received || 0), 0))}
+          </h2>
         </div>
-        <div className={dark ? "bg-blue-900/30 border border-blue-700 rounded-2xl p-4" : "bg-blue-50 border border-blue-200 rounded-2xl p-4"}>
-          <p className={dark ? "text-sm text-gray-300" : "text-sm text-gray-700"}>Net</p>
-          <h2 className={dark ? "text-blue-300 font-bold" : "text-blue-700 font-bold"}>{format(entries.reduce((a,b)=>a+Number(b.total||0),0)-entries.reduce((a,b)=>a+Number(b.received||0),0))}</h2>
+        <div
+          className={
+            dark
+              ? "bg-blue-900/30 border border-blue-700 rounded-2xl p-4"
+              : "bg-blue-50 border border-blue-200 rounded-2xl p-4"
+          }
+        >
+          <p
+            className={dark ? "text-sm text-gray-300" : "text-sm text-gray-700"}
+          >
+            Net
+          </p>
+          <h2
+            className={
+              dark ? "text-blue-300 font-bold" : "text-blue-700 font-bold"
+            }
+          >
+            {format(
+              entries.reduce((a, b) => a + Number(b.total || 0), 0) -
+                entries.reduce((a, b) => a + Number(b.received || 0), 0)
+            )}
+          </h2>
         </div>
       </div>
 
-      {/* FORM */}
-      <div className="grid grid-cols-2 md:grid-cols-9 gap-2 mb-4">
+          {/* FORM */}
+          <div className="grid grid-cols-2 md:grid-cols-9 gap-2 mb-4">
       
-        <input type="date" name="date" value={form.date} onChange={handleChange}
-          className="border px-2 py-1 rounded-md" />
-      
-        <input placeholder="Bill" name="billNo" value={form.billNo} onChange={handleChange}
-          className="border px-2 py-1 rounded-md" />
-      
-        <input placeholder="Party" name="party" value={form.party} onChange={handleChange}
-          className="border px-2 py-1 rounded-md" />
-      
-        <input placeholder="Sales Person" name="salesperson" value={form.salesperson} onChange={handleChange}
-          className="border px-2 py-1 rounded-md" />
-      
-        <input placeholder="State" name="state" value={form.state} onChange={handleChange}
-          className="border px-2 py-1 rounded-md" />
-      
-        {/* ✅ TYPE DROPDOWN (YAHI ADD KIYA) */}
-        <select name="type" value={form.type} onChange={handleChange}
-          className="border px-2 py-1 rounded-md">
-          <option value="SALE">Sale</option>
-          <option value="PAYMENT">Payment</option>
-          <option value="CREDIT_NOTE">Credit Note</option>
-        </select>
-      
-        {/* CREDIT / COD */}
-        <select name="paymentType" value={form.paymentType} onChange={handleChange}
-          className="border px-2 py-1 rounded-md">
-          <option value="">Credit / COD</option>
-          <option value="CREDIT">Credit</option>
-          <option value="COD">COD</option>
-        </select>
-      
-        <input placeholder="Sale" name="total" value={form.total} onChange={handleChange}
-          className="border px-2 py-1 rounded-md" />
-      
-        <input placeholder="Payment" name="received" value={form.received} onChange={handleChange}
-          className="border px-2 py-1 rounded-md" />
-      
-        <button onClick={addEntry}
-          className="col-span-2 md:col-span-1 bg-blue-600 text-white rounded-md px-3 py-1">
-          Add
-        </button>
-      
-      </div>
+      <input type="date" name="date" value={form.date} onChange={handleChange}
+        className="border px-2 py-1 rounded-md" />
+    
+      <input placeholder="Bill" name="billNo" value={form.billNo} onChange={handleChange}
+        className="border px-2 py-1 rounded-md" />
+    
+      <input placeholder="Party" name="party" value={form.party} onChange={handleChange}
+        className="border px-2 py-1 rounded-md" />
+    
+      <input placeholder="Sales Person" name="salesperson" value={form.salesperson} onChange={handleChange}
+        className="border px-2 py-1 rounded-md" />
+    
+      <input placeholder="State" name="state" value={form.state} onChange={handleChange}
+        className="border px-2 py-1 rounded-md" />
+    
+      {/* ✅ TYPE DROPDOWN (YAHI ADD KIYA) */}
+      <select name="type" value={form.type} onChange={handleChange}
+        className="border px-2 py-1 rounded-md">
+        <option value="SALE">Sale</option>
+        <option value="PAYMENT">Payment</option>
+        <option value="CREDIT_NOTE">Credit Note</option>
+      </select>
+    
+      {/* CREDIT / COD */}
+      <select name="paymentType" value={form.paymentType} onChange={handleChange}
+        className="border px-2 py-1 rounded-md">
+        <option value="">Credit / COD</option>
+        <option value="CREDIT">Credit</option>
+        <option value="COD">COD</option>
+      </select>
+    
+      <input placeholder="Sale" name="total" value={form.total} onChange={handleChange}
+        className="border px-2 py-1 rounded-md" />
+    
+      <input placeholder="Payment" name="received" value={form.received} onChange={handleChange}
+        className="border px-2 py-1 rounded-md" />
+    
+      <button onClick={addEntry}
+        className="col-span-2 md:col-span-1 bg-blue-600 text-white rounded-md px-3 py-1">
+        Add
+      </button>
+    
+    </div>
 
       {/* SALESPERSON CARD (FIXED POSITION) */}
-      <div className={dark ? "bg-purple-900/30 border border-purple-700 rounded-2xl p-4 mb-4" : "bg-purple-50 border border-purple-200 rounded-2xl p-4 mb-4"}>
-        <h2 className={dark ? "font-semibold text-lg text-purple-300 mb-2" : "font-semibold text-lg text-purple-700 mb-2"}>
-          {selectedSales === "ALL" ? "All Salespersons" : selectedSales} (Sales Summary)
+      <div
+        className={
+          dark
+            ? "bg-purple-900/30 border border-purple-700 rounded-2xl p-4 mb-4"
+            : "bg-purple-50 border border-purple-200 rounded-2xl p-4 mb-4"
+        }
+      >
+        <h2
+          className={
+            dark
+              ? "font-semibold text-lg text-purple-300 mb-2"
+              : "font-semibold text-lg text-purple-700 mb-2"
+          }
+        >
+          {selectedSales === "ALL" ? "All Salespersons" : selectedSales} (Sales
+          Summary)
         </h2>
         <div className="grid grid-cols-3 gap-3 text-sm">
           <div>
-            <p className={dark ? "text-gray-300" : "text-gray-600"}>Total Sale</p>
-            <p className={dark ? "font-bold text-red-300" : "font-bold text-red-600"}>{format(salesTotalSale)}</p>
+            <p className={dark ? "text-gray-300" : "text-gray-600"}>
+              Total Sale
+            </p>
+            <p
+              className={
+                dark ? "font-bold text-red-300" : "font-bold text-red-600"
+              }
+            >
+              {format(salesTotalSale)}
+            </p>
           </div>
           <div>
-            <p className={dark ? "text-gray-300" : "text-gray-600"}>Total Payment</p>
-            <p className={dark ? "font-bold text-green-300" : "font-bold text-green-600"}>{format(salesTotalPayment)}</p>
+            <p className={dark ? "text-gray-300" : "text-gray-600"}>
+              Total Payment
+            </p>
+            <p
+              className={
+                dark ? "font-bold text-green-300" : "font-bold text-green-600"
+              }
+            >
+              {format(salesTotalPayment)}
+            </p>
           </div>
           <div>
             <p className={dark ? "text-gray-300" : "text-gray-600"}>Due</p>
-            <p className={dark ? "font-bold text-red-300" : "font-bold text-red-600"}>{salesBalance > 0 ? format(salesBalance) : "—"}</p>
+            <p
+              className={
+                dark ? "font-bold text-red-300" : "font-bold text-red-600"
+              }
+            >
+              {salesBalance > 0 ? format(salesBalance) : "—"}
+            </p>
           </div>
         </div>
       </div>
 
       {/* TABLE */}
-      <div className={dark ? "overflow-auto rounded-2xl shadow border border-gray-700" : "overflow-auto rounded-2xl shadow border border-gray-200"}>
-        <table className={dark ? "w-full text-sm text-white" : "w-full text-sm text-gray-800"}>
-          <thead className={dark ? "bg-gray-700 text-white sticky top-0 z-10" : "bg-blue-50 text-gray-900 border-b border-gray-200 sticky top-0 z-10"}>
+      <div
+        className={
+          dark
+            ? "overflow-auto rounded-2xl shadow border border-gray-700"
+            : "overflow-auto rounded-2xl shadow border border-gray-200"
+        }
+      >
+        <table
+          className={
+            dark ? "w-full text-sm text-white" : "w-full text-sm text-gray-800"
+          }
+        >
+          <thead
+            className={
+              dark
+                ? "bg-gray-700 text-white sticky top-0 z-10"
+                : "bg-blue-50 text-gray-900 border-b border-gray-200 sticky top-0 z-10"
+            }
+          >
             <tr className="text-left">
-              <th className={dark ? "px-4 py-3 text-white" : "px-4 py-3 text-gray-900 font-semibold"}>Date</th>
-              <th className={dark ? "px-4 py-3 text-white" : "px-4 py-3 text-gray-900 font-semibold"}>Party</th>
-              <th className={dark ? "px-4 py-3 text-white" : "px-4 py-3 text-gray-900 font-semibold"}>Bill No</th>
-              <th className={dark ? "px-4 py-3 text-white" : "px-4 py-3 text-gray-900 font-semibold"}>Sales Person</th>
-              <th className={dark ? "px-4 py-3 text-white" : "px-4 py-3 text-gray-900 font-semibold"}>State</th>
-              <th className={dark ? "px-4 py-3 text-white" : "px-4 py-3 text-gray-900 font-semibold"}>Type</th>
-              <th className={dark ? "px-4 py-3 text-white" : "px-4 py-3 text-gray-900 font-semibold"}>Method</th>
+              <th
+                className={
+                  dark
+                    ? "px-4 py-3 text-white"
+                    : "px-4 py-3 text-gray-900 font-semibold"
+                }
+              >
+                Date
+              </th>
+              <th
+                className={
+                  dark
+                    ? "px-4 py-3 text-white"
+                    : "px-4 py-3 text-gray-900 font-semibold"
+                }
+              >
+                Party
+              </th>
+              <th
+                className={
+                  dark
+                    ? "px-4 py-3 text-white"
+                    : "px-4 py-3 text-gray-900 font-semibold"
+                }
+              >
+                Bill No
+              </th>
+              <th
+                className={
+                  dark
+                    ? "px-4 py-3 text-white"
+                    : "px-4 py-3 text-gray-900 font-semibold"
+                }
+              >
+                Sales Person
+              </th>
+              <th
+                className={
+                  dark
+                    ? "px-4 py-3 text-white"
+                    : "px-4 py-3 text-gray-900 font-semibold"
+                }
+              >
+                State
+              </th>
+              <th
+                className={
+                  dark
+                    ? "px-4 py-3 text-white"
+                    : "px-4 py-3 text-gray-900 font-semibold"
+                }
+              >
+                Type
+              </th>
+              <th
+                className={
+                  dark
+                    ? "px-4 py-3 text-white"
+                    : "px-4 py-3 text-gray-900 font-semibold"
+                }
+              >
+                Method
+              </th>
               <th className="px-4 py-3 text-right">Sale</th>
               <th className="px-4 py-3 text-right">Payment</th>
               <th className="px-4 py-3 text-right">Bill Due</th>
@@ -484,7 +761,7 @@ const addEntry = async () => {
                       ? "ring-1 ring-red-500/50 shadow-lg shadow-red-900/30"
                       : "bg-red-50 ring-1 ring-red-300"
                     : ""
-                }`
+                }`}
               >
                 <td className={dark ? "px-4 py-3 whitespace-nowrap text-white" : "px-4 py-3 whitespace-nowrap text-gray-800"}>{row.date}</td>
                 <td className={dark ? "px-4 py-3 font-medium text-white" : "px-4 py-3 font-medium text-gray-900"}>{row.party}</td>
