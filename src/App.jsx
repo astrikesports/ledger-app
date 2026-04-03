@@ -378,7 +378,49 @@ const addEntry = async () => {
 
       {/* FORM */}
       <div className="grid grid-cols-2 md:grid-cols-9 gap-2 mb-4">
-        ...
+      
+        <input type="date" name="date" value={form.date} onChange={handleChange}
+          className="border px-2 py-1 rounded-md" />
+      
+        <input placeholder="Bill" name="billNo" value={form.billNo} onChange={handleChange}
+          className="border px-2 py-1 rounded-md" />
+      
+        <input placeholder="Party" name="party" value={form.party} onChange={handleChange}
+          className="border px-2 py-1 rounded-md" />
+      
+        <input placeholder="Sales Person" name="salesperson" value={form.salesperson} onChange={handleChange}
+          className="border px-2 py-1 rounded-md" />
+      
+        <input placeholder="State" name="state" value={form.state} onChange={handleChange}
+          className="border px-2 py-1 rounded-md" />
+      
+        {/* ✅ TYPE DROPDOWN (YAHI ADD KIYA) */}
+        <select name="type" value={form.type} onChange={handleChange}
+          className="border px-2 py-1 rounded-md">
+          <option value="SALE">Sale</option>
+          <option value="PAYMENT">Payment</option>
+          <option value="CREDIT_NOTE">Credit Note</option>
+        </select>
+      
+        {/* CREDIT / COD */}
+        <select name="paymentType" value={form.paymentType} onChange={handleChange}
+          className="border px-2 py-1 rounded-md">
+          <option value="">Credit / COD</option>
+          <option value="CREDIT">Credit</option>
+          <option value="COD">COD</option>
+        </select>
+      
+        <input placeholder="Sale" name="total" value={form.total} onChange={handleChange}
+          className="border px-2 py-1 rounded-md" />
+      
+        <input placeholder="Payment" name="received" value={form.received} onChange={handleChange}
+          className="border px-2 py-1 rounded-md" />
+      
+        <button onClick={addEntry}
+          className="col-span-2 md:col-span-1 bg-blue-600 text-white rounded-md px-3 py-1">
+          Add
+        </button>
+      
       </div>
 
       {/* SALESPERSON CARD (FIXED POSITION) */}
