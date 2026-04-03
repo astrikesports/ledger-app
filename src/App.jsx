@@ -53,7 +53,7 @@ export default function DueTrackerAdvanced() {
     paymentType: "", // NEW (CREDIT / COD)
     total: "",
     received: "",
-    type: "SALE",
+    type: "SALE", // SALE | PAYMENT | CREDIT_NOTE
   });
 
   
@@ -167,7 +167,7 @@ const addEntry = async () => {
 
     // PASS 1: APPLY ALL PAYMENTS
     filtered.forEach((e) => {
-      const sale = Number(e.total || 0);
+      const sale = e.type === "CREDIT_NOTE" ? -Number(e.total || 0) : Number(e.total || 0);
       const payment = Number(e.received || 0);
 
       if (!partyQueues[e.party]) partyQueues[e.party] = [];
@@ -199,7 +199,7 @@ const addEntry = async () => {
 
     // PASS 2: MAP RESULT
     return filtered.map((e) => {
-      const sale = Number(e.total || 0);
+      const sale = e.type === "CREDIT_NOTE" ? -Number(e.total || 0) : Number(e.total || 0);
       const payment = Number(e.received || 0);
 
       const billRemaining = billRemainingMap[e.id] || 0; // per bill due
@@ -452,7 +452,7 @@ const addEntry = async () => {
 
                 <td className={dark ? "px-4 py-3 text-white" : "px-4 py-3 text-gray-800 font-semibold"}>
                   <span className={`px-2 py-1 rounded-full text-xs font-bold ${row.type === "PAYMENT" ? (dark ? "bg-green-900/40 text-green-300" : "bg-green-100 text-green-700") : (dark ? "bg-blue-900/40 text-blue-300" : "bg-blue-100 text-blue-700")}`}>
-                    {row.type}
+                    {row.type === "CREDIT_NOTE" ? "CREDIT" : row.type}
                   </span>
                 </td>
 
