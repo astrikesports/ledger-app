@@ -529,25 +529,66 @@ const addEntry = async () => {
       )}
 
       {/* SALESPERSON CARD (FIXED POSITION) */}
-      <div className={dark ? "bg-purple-900/30 border border-purple-700 rounded-2xl p-4 mb-4" : "bg-purple-50 border border-purple-200 rounded-2xl p-4 mb-4"}>
-        <h2 className={dark ? "font-semibold text-lg text-purple-300 mb-2" : "font-semibold text-lg text-purple-700 mb-2"}>
-          {selectedSales === "ALL" ? "All Salespersons" : selectedSales} (Sales Summary)
-        </h2>
-        <div className="grid grid-cols-3 gap-3 text-sm">
-          <div>
-            <p className={dark ? "text-gray-300" : "text-gray-600"}>Total Sale</p>
-            <p className={dark ? "font-bold text-red-300" : "font-bold text-red-600"}>{format(salesTotalSale)}</p>
-          </div>
-          <div>
-            <p className={dark ? "text-gray-300" : "text-gray-600"}>Total Payment</p>
-            <p className={dark ? "font-bold text-green-300" : "font-bold text-green-600"}>{format(salesTotalPayment)}</p>
-          </div>
-          <div>
-            <p className={dark ? "text-gray-300" : "text-gray-600"}>Due</p>
-            <p className={dark ? "font-bold text-red-300" : "font-bold text-red-600"}>{salesBalance > 0 ? format(salesBalance) : "—"}</p>
+      {selectedSales !== "ALL" && (
+        <div
+          className={
+            dark
+              ? "bg-purple-900/30 border border-purple-700 rounded-2xl p-4 mb-4"
+              : "bg-purple-50 border border-purple-200 rounded-2xl p-4 mb-4"
+          }
+        >
+          <h2
+            className={
+              dark
+                ? "font-semibold text-lg text-purple-300 mb-2"
+                : "font-semibold text-lg text-purple-700 mb-2"
+            }
+          >
+            {selectedSales} (Sales Summary)
+          </h2>
+      
+          <div className="grid grid-cols-3 gap-3 text-sm">
+            <div>
+              <p className={dark ? "text-gray-300" : "text-gray-600"}>
+                Total Sale
+              </p>
+              <p
+                className={
+                  dark ? "font-bold text-red-300" : "font-bold text-red-600"
+                }
+              >
+                {format(salesTotalSale)}
+              </p>
+            </div>
+      
+            <div>
+              <p className={dark ? "text-gray-300" : "text-gray-600"}>
+                Total Payment
+              </p>
+              <p
+                className={
+                  dark ? "font-bold text-green-300" : "font-bold text-green-600"
+                }
+              >
+                {format(salesTotalPayment)}
+              </p>
+            </div>
+      
+            <div>
+              <p className={dark ? "text-gray-300" : "text-gray-600"}>
+                Due
+              </p>
+              <p
+                className={
+                  dark ? "font-bold text-red-300" : "font-bold text-red-600"
+                }
+              >
+                {salesBalance > 0 ? format(salesBalance) : "—"}
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* TABLE */}
       <div className={dark ? "overflow-auto rounded-2xl shadow border border-gray-700" : "overflow-auto rounded-2xl shadow border border-gray-200"}>
